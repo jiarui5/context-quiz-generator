@@ -80,6 +80,13 @@ python scripts/build_chat_dataset.py \
   --output-dir data/final
 ```
 
+### Gemini를 사용한 새 질문 생성
+
+[`generate_questions_with_gemini.ipynb`](generate_questions_with_gemini.ipynb)를 Google Colab에서
+실행하면 Google Drive의 `squad_contexts_1200.jsonl`을 읽고 새로운 질문을 생성합니다.
+API key는 숨김 입력으로만 전달하며 notebook이나 저장소에 기록하지 않습니다. 생성 결과는
+진행 중에도 Drive에 저장되며, 완료 후 Unsloth 학습용 train/validation/test JSONL을 생성합니다.
+
 ## 7. 파인튜닝 설계 설명
 
 | 항목 | 초기 설정 | 선택 근거 |
@@ -147,6 +154,7 @@ python scripts/build_chat_dataset.py \
 ```text
 .
 ├── README.md
+├── generate_questions_with_gemini.ipynb
 ├── requirements.txt
 ├── data/
 ├── docs/

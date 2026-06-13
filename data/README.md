@@ -12,3 +12,5 @@
 대용량 원본 및 전체 학습 데이터는 저작권과 저장소 용량을 고려하여 업로드하지 않는다.
 대신 생성 방법, 전처리 스크립트, 소규모 예시 데이터를 제공한다.
 
+`generate_questions_with_gemini.ipynb`는 질문 생성 진행 상황을
+`generated_questions_progress.jsonl`에 즉시 저장하고, 완료 후 `final/` 데이터 분할을 생성한다.
