@@ -1,121 +1,158 @@
 # 영어 지문 기반 퀴즈 질문 자동 생성 모델
 
-SQuAD의 영어 `context`를 원천 텍스트로 활용하여, 주어진 지문만으로 답할 수 있는
-퀴즈 질문 하나를 생성하도록 베이스 언어 모델을 Unsloth QLoRA로 파인튜닝하는 프로젝트입니다.
+SQuAD의 영어 `context`를 원천 텍스트로 활용하여, 주어진 지문만으로 답할 수 있는 퀴즈 질문을
+정확히 하나 생성하도록 베이스 언어 모델을 Unsloth QLoRA로 파인튜닝하는 프로젝트입니다.
 
-> 현재 상태: 프로젝트 설계 및 데이터 파이프라인 구축 단계  
-> 실제 학습 로그, loss 곡선, Model Arena 비교 결과 및 export 증거는 학습 후 추가합니다.
+> 현재 상태: 데이터 파이프라인 및 Colab 코드 구축 완료, 실제 학습 및 결과 기록 예정
 
-## 1. 문제 정의
+## 1. 프로젝트 소개
 
-긴 영어 지문을 읽고 평가 또는 복습에 사용할 질문을 직접 만드는 작업은 시간이 많이 듭니다.
-본 프로젝트는 교사와 학습자가 지문을 입력하면, 지문의 핵심 내용을 확인할 수 있고 지문만으로
-답할 수 있는 질문을 **정확히 하나** 생성하는 모델을 만드는 것을 목표로 합니다.
+긴 영어 지문을 바탕으로 평가·복습용 질문을 직접 작성하는 데에는 많은 시간이 필요합니다.
+본 프로젝트는 교사, 학습자, 교육 콘텐츠 제작자가 영어 지문을 입력하면 해당 지문만으로 답할 수
+있는 자연스러운 퀴즈 질문 하나를 생성하는 모델을 개발합니다.
 
-### 목표 사용자
+## 2. 주제 및 목표
 
-- 영어 독해 자료를 만드는 교사
-- 읽은 내용을 스스로 점검하려는 학습자
-- 문서 기반 퀴즈 초안을 빠르게 만들려는 콘텐츠 제작자
-
-### 성공 기준
-
-학습에 사용하지 않은 지문에서 베이스 모델보다 다음 기준을 더 잘 만족하면 성공으로 판단합니다.
+파인튜닝 모델은 다음 기준을 베이스 모델보다 안정적으로 만족하는 것을 목표로 합니다.
 
 1. 질문을 정확히 하나만 생성한다.
 2. 질문이 입력 지문과 관련 있다.
 3. 질문의 답을 입력 지문에서 찾을 수 있다.
-4. 질문이 자연스럽고 문법적으로 올바르다.
-5. 질문에 정답이나 불필요한 설명을 함께 출력하지 않는다.
+4. 자연스럽고 문법적으로 올바른 영어 질문을 생성한다.
+5. 정답, 선택지, 설명 등 불필요한 내용을 출력하지 않는다.
 
-## 2. 데이터셋 설계
+## 3. 주요 기능
+
+- 영어 지문을 입력받아 퀴즈 질문을 정확히 하나 생성
+- 입력 지문만으로 답할 수 있는 질문 생성
+- 정답·선택지·설명 없이 질문만 출력
+- 다양한 Wikipedia 주제의 영어 지문 처리
+- 베이스 모델보다 안정적인 출력 형식과 높은 지문 관련성을 목표로 함
+
+## 4. 사용한 데이터셋
 
 - 원천 데이터: [SQuAD](https://huggingface.co/datasets/rajpurkar/squad)
 - 사용 필드: `context`
-- 사용하지 않는 원본 필드: 기존 `question`, `answers`
-- 변환 과정: 중복 context 제거 → 길이 필터링 → 새로운 질문 생성 → 품질 검수 → chat 형식 변환
+- 직접 사용하지 않는 필드: 기존 `question`, `answers`
+- 처리 과정: context 중복 제거 → 길이 필터링 → 새 질문 생성 → 품질 검수 → chat 형식 변환
 
-SQuAD의 기존 질문을 그대로 학습하면 단순한 데이터 재사용이 됩니다. 본 프로젝트는 `context`만
-원천 자료로 사용하고, 각 지문에 맞는 새로운 질문을 생성·검수하여 프로젝트 목적에 맞는
-파인튜닝 데이터셋을 직접 설계합니다.
+기존 질문을 그대로 학습하지 않고 `context`만 원천 자료로 사용합니다. 각 context에 대해 프로젝트
+목적에 맞는 새로운 질문을 생성·검수하여 직접 파인튜닝 데이터셋을 구축합니다.
+자세한 내용은 [`data/README.md`](data/README.md)와
+[`docs/DATA_GENERATION_GUIDE.md`](docs/DATA_GENERATION_GUIDE.md)를 참고하십시오.
 
-학습 샘플 형식:
+## 5. 사용한 기술 스택
 
-```json
-{"messages":[{"role":"user","content":"Read the passage and generate exactly one quiz question that can be answered using only the passage. Output only the question.\n\nPassage:\n..."},{"role":"assistant","content":"...?"}]}
-```
+| 구분 | 기술 |
+|---|---|
+| Base Model | `unsloth/Qwen2.5-3B-Instruct` 후보, 실험 후 확정 |
+| Fine-tuning | Unsloth, QLoRA |
+| Libraries | PyTorch, Transformers, TRL, PEFT, Datasets |
+| Environment | Google Colab NVIDIA GPU |
+| Data Source | SQuAD context |
+| Language | Python |
 
-## 3. 모델 및 학습 설계
+## 6. 설치 및 실행 방법
 
-| 항목 | 초기 설정 | 선택 근거 |
-|---|---|---|
-| 베이스 모델 | `unsloth/Qwen2.5-3B-Instruct` 후보 | 영어 지시 수행 능력과 Colab T4 환경의 VRAM 균형 |
-| 방법 | QLoRA | 4-bit 베이스 모델로 VRAM을 절약하면서 LoRA 어댑터 학습 |
-| learning rate | `2e-4` | LoRA/QLoRA의 일반적인 시작값, 실험 후 조정 |
-| epochs | `1–3` | 과적합을 피하면서 형식과 작업을 학습시키기 위한 범위 |
-| LoRA rank | `16` | 표현력과 메모리 사용량의 균형 |
-| LoRA alpha | `32` | 초기값으로 `2 × rank` 사용 |
-| target modules | attention + MLP 전체 | 질문 생성 행동을 충분히 학습시키기 위함 |
-| effective batch | `16` | 안정적인 gradient와 제한된 VRAM의 균형 |
+### Google Colab 학습
 
-최종 설정은 실제 loss와 검증 결과를 근거로 확정합니다.
+1. [`finetuning.ipynb`](finetuning.ipynb)를 Google Colab에서 엽니다.
+2. `런타임 → 런타임 유형 변경 → T4 GPU`를 선택합니다.
+3. 셀을 순서대로 실행하여 라이브러리 설치, 데이터 로드, QLoRA 학습 및 adapter export를 수행합니다.
 
-## 4. 실행 방법
+### 추론 및 비교
 
-### 원천 context 추출
+1. [`inference.ipynb`](inference.ipynb)를 Google Colab에서 엽니다.
+2. 베이스 모델과 저장된 LoRA adapter를 로드합니다.
+3. 동일한 test context로 출력을 생성하고 `results/comparison.csv`에 기록합니다.
+
+### 로컬 데이터 전처리
 
 ```bash
+pip install -r requirements.txt
+
 python scripts/prepare_squad_contexts.py \
   --input data/raw/squad_train.json \
   --output data/processed/contexts.jsonl
-```
 
-### 생성된 질문을 chat 데이터로 변환
-
-`data/interim/generated_questions.jsonl`에 `context`, `generated_question` 필드를 준비한 후:
-
-```bash
 python scripts/build_chat_dataset.py \
   --input data/interim/generated_questions.jsonl \
   --output-dir data/final
 ```
 
-## 5. 평가 계획
+## 7. 파인튜닝 설계 설명
 
-학습에 사용하지 않은 동일한 test context를 베이스 모델과 파인튜닝 모델에 입력합니다.
-사람 평가와 자동 형식 평가를 함께 사용합니다.
+| 항목 | 초기 설정 | 선택 근거 |
+|---|---|---|
+| 베이스 모델 | `unsloth/Qwen2.5-3B-Instruct` 후보 | 영어 지시 수행 능력과 Colab GPU 환경의 VRAM 균형 |
+| 방법 | QLoRA | 4-bit 베이스 모델로 VRAM을 절약하면서 LoRA adapter 학습 |
+| learning rate | `2e-4` | LoRA/QLoRA 학습의 일반적인 시작값, 실제 결과에 따라 조정 |
+| epochs | `1–3` | 과적합을 방지하면서 출력 행동을 학습하기 위한 범위 |
+| LoRA rank | `16` | 표현력과 메모리 사용량의 균형 |
+| LoRA alpha | `32` | 초기값으로 `2 × rank` 사용 |
+| target modules | attention + MLP 전체 | 질문 생성 행동을 충분히 학습시키기 위함 |
+| effective batch | `16` | 안정적인 gradient와 제한된 VRAM의 균형 |
 
-| 평가 항목 | 측정 방법 |
-|---|---|
-| 단일 질문 준수율 | 출력의 질문 수와 불필요한 답변 포함 여부 확인 |
-| 지문 관련성 | 1–5점 사람 평가 |
-| 지문 기반 답변 가능성 | 1–5점 사람 평가 |
-| 자연스러움 | 1–5점 사람 평가 |
-| 평균 질문 길이 / 중복률 | 스크립트 기반 정량 분석 |
+최종 하이퍼파라미터는 training/validation loss와 베이스 모델 비교 결과를 근거로 확정합니다.
 
-비교 결과는 `results/comparison.csv`와 `results/comparison-summary.md`에 기록합니다.
+## 8. 학습 과정
 
-## 6. 제출 증거 체크리스트
+실제 Unsloth QLoRA 학습 후 다음 자료를 추가합니다.
 
-- [ ] Unsloth 실제 학습 로그
-- [ ] training/validation loss 곡선
-- [ ] 베이스 vs 파인튜닝 Model Arena 스크린샷
-- [ ] 정량·정성 비교 결과
-- [ ] LoRA adapter 또는 GGUF export
-- [ ] 로컬 또는 Colab 추론 화면
-- [ ] 프로젝트 보고서
-- [ ] 발표 영상
+- training/validation loss 곡선
+- GPU 환경과 학습 시간
+- 과적합·과소적합 판단
+- 하이퍼파라미터 수정 과정
+- LoRA adapter 및 GGUF export 결과
 
-## 7. 프로젝트 구조
+## 9. 베이스 모델 vs 파인튜닝 모델 비교
+
+학습에 사용하지 않은 동일한 test context를 두 모델에 입력하여 비교합니다.
+
+| 평가 항목 | 베이스 모델 | 파인튜닝 모델 | 변화 |
+|---|---:|---:|---:|
+| 단일 질문 준수율 | 학습 후 기록 | 학습 후 기록 | |
+| 관련성 평균 점수 | 학습 후 기록 | 학습 후 기록 | |
+| 답변 가능성 평균 점수 | 학습 후 기록 | 학습 후 기록 | |
+| 자연스러움 평균 점수 | 학습 후 기록 | 학습 후 기록 | |
+
+정량·정성 결과는 [`results/comparison.csv`](results/comparison.csv)에 기록합니다.
+
+## 10. 실행 결과 및 스크린샷
+
+학습 완료 후 [`images/`](images/)에 다음 증거를 추가합니다.
+
+- Colab 학습 완료 화면
+- loss 곡선
+- Model Arena 또는 베이스 vs 파인튜닝 비교
+- 파인튜닝 모델 추론 예시
+- 모델 export 및 실행 화면
+
+## 11. 한계점 및 개선 방향
+
+- 합성 질문 생성 과정에서 오류가 포함될 수 있으므로 사람 기반 품질 검수가 필요합니다.
+- 사람 평가의 주관성을 줄이기 위해 복수 평가자 또는 자동 평가 방법을 함께 사용할 필요가 있습니다.
+- 향후 다양한 길이와 도메인의 문서에서 일반화 성능을 평가할 예정입니다.
+
+## 12. 참고문헌
+
+- [Unsloth Documentation](https://docs.unsloth.ai/)
+- [SQuAD: 100,000+ Questions for Machine Comprehension of Text](https://arxiv.org/abs/1606.05250)
+- [LoRA: Low-Rank Adaptation of Large Language Models](https://arxiv.org/abs/2106.09685)
+- [QLoRA: Efficient Finetuning of Quantized LLMs](https://arxiv.org/abs/2305.14314)
+- [LIMA: Less Is More for Alignment](https://arxiv.org/abs/2305.11206)
+
+## 프로젝트 구조
 
 ```text
 .
+├── README.md
+├── finetuning.ipynb
+├── inference.ipynb
+├── requirements.txt
 ├── data/
-│   ├── raw/
-│   ├── processed/
-│   ├── interim/
-│   └── final/
 ├── docs/
+├── images/
 ├── results/
 └── scripts/
 ```
