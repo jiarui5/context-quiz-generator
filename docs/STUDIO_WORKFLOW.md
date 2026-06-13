@@ -1,6 +1,6 @@
-# Unsloth Studio 실행 및 증거 수집 체크리스트
+# Unsloth Studio 실행 워크플로우
 
-본 프로젝트는 과제에서 권장하는 Unsloth Studio 경로로 실제 파인튜닝을 수행한다.
+본 프로젝트는 Unsloth Studio에서 QLoRA 파인튜닝을 수행한다.
 
 ## 1. Studio 시작
 
@@ -34,7 +34,7 @@
 | effective batch | 16 |
 | target modules | attention + MLP |
 
-학습 중 다음 증거를 저장한다.
+학습 중 다음 정보를 저장한다.
 
 - training loss 곡선
 - validation loss
@@ -59,7 +59,7 @@
 - GGUF로 export한다.
 - export 완료 화면과 실제 추론 화면을 캡처한다.
 
-## 7. GitHub에 추가할 증거
+## 7. 실행 결과 파일
 
 완료 후 `images/`에 다음 파일을 추가한다.
 
@@ -69,4 +69,3 @@
 - `model-arena.png`
 - `inference-example.png`
 - `export-result.png`
-
