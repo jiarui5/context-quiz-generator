@@ -5,5 +5,9 @@ __pycache__/
 outputs/
 lora_model/
 model_gguf/
+*.gguf
+*.safetensors
+checkpoints/
+lora_adapter/
 data/raw/*
 !data/raw/.gitkeep
