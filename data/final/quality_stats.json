@@ -1,0 +1,11 @@
+{
+  "source_records": 437,
+  "accepted_records": 437,
+  "rejected_records": 0,
+  "splits": {
+    "train": 349,
+    "validation": 43,
+    "test": 45
+  },
+  "rejection_reasons": {}
+}

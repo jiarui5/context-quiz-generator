@@ -14,3 +14,16 @@
 
 `generate_questions_with_gemini.ipynb`는 질문 생성 진행 상황을
 `generated_questions_progress.jsonl`에 즉시 저장하고, 완료 후 `final/` 데이터 분할을 생성한다.
+
+## 최종 데이터 통계
+
+| 항목 | 개수 |
+|---|---:|
+| Data Recipes 생성 결과 | 437 |
+| 자동 품질 검사 통과 | 437 |
+| train | 349 |
+| validation | 43 |
+| test | 45 |
+
+생성 데이터 출처:
+[jiarui5/squad-context-quiz-generated](https://huggingface.co/datasets/jiarui5/squad-context-quiz-generated)
