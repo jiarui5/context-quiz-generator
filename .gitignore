@@ -11,3 +11,6 @@ checkpoints/
 lora_adapter/
 data/raw/*
 !data/raw/.gitkeep
+
+# Local-only report draft
+final_report.md
