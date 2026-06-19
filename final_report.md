@@ -109,7 +109,8 @@ Training loss는 초반보다 낮아졌고, evaluation loss도 약 1.0 수준에
 데이터셋이 작기 때문에 epoch를 더 늘리면 특정 질문 스타일에 과적합될 수 있다고 판단했다. 따라서
 1 epoch에서 멈추고, test split으로 base model과 fine-tuned model을 비교했다.
 
-학습 화면과 loss curve는 `images/training-eval-loss.png`에 저장했다.
+학습 완료 화면은 `images/training-complete.png`에, loss curve는 `images/training-eval-loss.png`에
+저장했다.
 
 ## 7. 구현 결과: Base Model vs Fine-tuned Model 비교
 
@@ -130,8 +131,9 @@ fine-tuned model을 비교했다. 평가 기준은 다음과 같다.
 | 답변 가능성 평균 점수 | 5.0 | 4.6 |
 | 자연스러움 평균 점수 | 4.6 | 4.8 |
 
-세부 결과는 `results/comparison.csv`에 기록했다.
-Model Arena 비교 화면은 `images/model-arena-comparison.png`에 저장했다.
+세부 결과는 `results/comparison.csv`에 기록했다. Model Arena 비교 화면은
+`images/model-arena-01-campus.png`부터 `images/model-arena-05-uranium.png`까지 5개 이미지로
+저장했다.
 
 정성적으로는 다음과 같은 결과가 관찰되었다.
 

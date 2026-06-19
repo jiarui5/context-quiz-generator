@@ -188,8 +188,14 @@ Maslow passage에서는 base model이 더 의미 있는 질문을 생성했고, 
 
 - 데이터 생성 실행 화면: [`images/data-recipe-test-20.png`](images/data-recipe-test-20.png),
   [`images/data-recipe-full-run-1200.png`](images/data-recipe-full-run-1200.png)
+- 학습 완료 화면: [`images/training-complete.png`](images/training-complete.png)
 - 학습 및 eval loss 화면: [`images/training-eval-loss.png`](images/training-eval-loss.png)
-- Model Arena 비교 화면: [`images/model-arena-comparison.png`](images/model-arena-comparison.png)
+- Model Arena 비교 화면:
+  [`01`](images/model-arena-01-campus.png),
+  [`02`](images/model-arena-02-maslow.png),
+  [`03`](images/model-arena-03-uneven-bars.png),
+  [`04`](images/model-arena-04-dollar.png),
+  [`05`](images/model-arena-05-uranium.png)
 - Hugging Face export 화면: [`images/huggingface-export.png`](images/huggingface-export.png)
 - Base vs Fine-tuned 비교 결과: [`results/comparison.csv`](results/comparison.csv)
 
