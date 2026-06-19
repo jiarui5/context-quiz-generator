@@ -115,7 +115,8 @@ Training loss는 초반보다 낮아졌고, evaluation loss도 약 1.0 수준에
 ## 7. 구현 결과: Base Model vs Fine-tuned Model 비교
 
 학습에 사용하지 않은 test split의 passage 5개를 사용해 Unsloth Studio Model Arena에서 base model과
-fine-tuned model을 비교했다. 평가 기준은 다음과 같다.
+fine-tuned model을 비교했다. 추가로 무관한 일반 질문 2개를 사용해 망각 체크를 수행했다. 평가 기준은
+다음과 같다.
 
 - 정확히 하나의 질문만 출력하는가
 - passage와 관련 있는가
@@ -134,6 +135,15 @@ fine-tuned model을 비교했다. 평가 기준은 다음과 같다.
 세부 결과는 `results/comparison.csv`에 기록했다. Model Arena 비교 화면은
 `images/model-arena-01-campus.png`부터 `images/model-arena-05-uranium.png`까지 5개 이미지로
 저장했다.
+
+망각 체크에서는 다음 두 질문을 사용했다.
+
+- `What is the capital of France? Answer in one short sentence.`
+- `Explain photosynthesis in one sentence.`
+
+두 질문 모두에서 base model과 fine-tuned model은 정상적인 일반 답변을 생성했다. Fine-tuned model이
+모든 입력을 quiz question 형식으로 바꾸려는 현상은 관찰되지 않았다. 망각 체크 화면은
+`images/forgetting-check.png`에 저장했다.
 
 정성적으로는 다음과 같은 결과가 관찰되었다.
 
@@ -165,14 +175,14 @@ Export 완료 화면은 `images/huggingface-export.png`에 저장했다.
 - 비교 샘플이 5개이므로 평가 규모가 작다.
 - Base model 자체가 이미 좋은 질문을 생성할 수 있어 개선 폭이 작았다.
 - Fine-tuned model이 모든 샘플에서 base model보다 우수하지는 않았다.
-- 무관한 일반 질문을 통한 망각 체크가 추가로 필요하다.
+- 무관한 일반 질문 2개로 간단한 망각 체크를 수행했지만, 더 다양한 일반 능력 평가가 필요하다.
 - LoRA adapter export는 완료했지만, GGUF/Ollama 로컬 실행 증거는 추가 보완이 가능하다.
 
 개선 방향은 다음과 같다.
 
 - test sample을 20개 이상으로 늘려 평가 신뢰도를 높인다.
 - 질문 난이도, 질문 유형, 답변 가능성 등을 명시한 더 정교한 데이터셋을 만든다.
-- 무관한 일반 질문을 섞어 catastrophic forgetting 여부를 확인한다.
+- 무관한 일반 질문을 더 많이 섞어 catastrophic forgetting 여부를 정량적으로 확인한다.
 - 필요하면 2 epoch 또는 rank 32 실험을 추가하고 validation loss와 output quality를 비교한다.
 - GGUF export를 추가하여 Ollama 또는 llama.cpp에서 로컬 실행을 시연한다.
 
